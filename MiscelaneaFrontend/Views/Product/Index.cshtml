@@ -1,0 +1,65 @@
+﻿@using MiscelaneaFrontend.Models
+@{
+	ViewData["title"] = "lista de productos";
+	var productList = ViewData["productList"] as List<ProductDTO> != null ? ViewData["productList"] as List<ProductDTO> : new List<ProductDTO>();
+}
+<div>
+	
+	<div class="d-flex justify-content-end">
+		<a class="btn btn-success" asp-controller="Product" asp-action="RegisterProduct">Registrar producto</a>
+	</div>
+	@* <h1>tamaño: @productList.Count()</h1> *@
+	<table class="table table-striped mt-1">
+		<thead>
+			<tr>
+				<th>
+					#
+				</th>
+				<th>
+					folio
+				</th>
+				<th>
+					producto
+				</th>
+				<th>
+					precio
+				</th>
+				<th>
+					stock
+				</th>
+				<th>
+					Operaciones
+				</th>
+
+			</tr>
+		</thead>
+		<tbody>
+
+			@{
+				for (int i = 0; i < productList.Count; i++)
+				{
+					<tr>
+						@{var item = productList[i];}
+						<td>@i</td>
+						<td>@item.IdProduct</td>
+						<td>@item.ProductName</td>
+						<td>@item.Price</td>
+						<td>@item.Stock</td>
+						<td>
+							<div class="">
+								<a href="#" class="pe-5"> <i class="fa-solid fa-trash" style="color:#ff3333"></i></a>
+
+								<a href="#"><i class="fa-solid fa-pen " style="color:#ff3333"></i></a>
+							</div>
+
+						</td>
+					</tr>
+
+				}
+			}
+
+
+		</tbody>
+	</table>
+</div>
+

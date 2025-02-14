@@ -1,0 +1,102 @@
+﻿@using MiscelaneaFrontend.Models
+
+@using System.Text.Json;
+@{
+	ViewData["title"] = "Proceso de venta";
+	var productListJson = TempData.Peek("ProductList") as string;
+	var productList =  JsonSerializer.Deserialize<List<ProductDTO>>(productListJson);
+	var wishListJson = TempData.Peek("wishList") as string;
+	var Cart =  wishListJson != null?  JsonSerializer.Deserialize<List<ItemCart>>(wishListJson): new List<ItemCart>();
+}
+
+
+<div class="container ">
+	<div class="card p-2 ">
+		<p class="h2">Almacen</p>
+		<form action="/" method="post">
+			<label for="searchInput">Buscar</label>
+			<div class="d-flex">
+				<input id="searchInput" type="text" name="name" value="" placeholder="producto" class="form-control w-25" />
+				<button type="submit" class="btn btn-success ms-3">Buscar</button>
+			</div>
+		</form>
+
+		<div class="overflow-scroll " style="max-height:150px;">
+			<table class="table table-hover mt-2" style="height:200px">
+				<thead>
+					<tr>
+						<td>
+							folio
+						</td>
+						<td>nombre</td>
+						<td>
+							Precio
+						</td>
+						<td>stock</td>
+						<td>
+							Opciones
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+					@{
+						foreach (var item in productList)
+						{
+							<tr>
+								<td>@item.IdProduct</td>
+								<td>@item.ProductName</td>
+								<td>@item.Price</td>
+								<td>@item.Stock</td>
+								<td class="align-content-center">
+
+									<form asp-controller="Sales" asp-action="AddProduct" method="post">
+										<input type="number" name="pas" value="@item.IdProduct" style="display:none" />
+										<button><i class="fa-solid fa-square-plus fa-xl" style="color: #1bbe33;"></i></button>
+									</form>
+								</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+
+		</div>
+
+	</div>
+
+	<div class="card mt-3 p-3">
+		<p class="h2">Carrito</p>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<td>Producto</td>
+					<td>Cantidad</td>
+					<td>$Individual</td>
+					<td>$Subtotal</td>
+				</tr>
+			</thead>
+			<tbody>
+				
+				@{
+					foreach (var item in Cart!)
+					{
+						<tr>
+							<td>@item.ProductName</td>
+							<td>@item.Stock</td>
+							<td>@item.PriceUnit</td>
+							<td>@item.Subtotal</td>
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+		<div class="d-flex justify-content-end">
+			<p class="h5">Total: $100</p>
+		</div>
+		<div class="d-flex justify-content-end">
+			<button class="btn btn-success">Registrar venta</button>
+		</div>
+	</div>
+
+
+</div>
