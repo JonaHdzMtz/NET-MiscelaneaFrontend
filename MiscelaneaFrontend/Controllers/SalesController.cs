@@ -26,36 +26,48 @@ namespace MiscelaneaFrontend.Controllers
         public IActionResult AddProduct(string pas)
         {
             var stockJson = TempData.Peek("productList") as string;
-            var stock = DeserializeTempData(stockJson);
+            var stock = JsonSerializer.Deserialize<List<ProductDTO>>(stockJson);
+
             var wishListJson = TempData.Peek("wishList") as string;
-            var cart = wishListJson != null ? DeserializeTempData(wishListJson) : null;
+            var cart = wishListJson != null ?
+                JsonSerializer.Deserialize<List<ItemCart>>(wishListJson) : new List<ItemCart>();
+
             if (stock != null)
             {
                 var itemSelected = stock.Find(x => x.IdProduct == int.Parse(pas));
-                if (cart != null) //EXISTE UN CARRITO
+
+                if (itemSelected != null)
                 {
-                    if (itemSelected != null) cart.Add(itemSelected);
+                    var existingItem = cart.FirstOrDefault(x => x.IdItemCart == itemSelected.IdProduct);
+                    if (existingItem != null)
+                    {
+                        // Si el producto ya está en el carrito, aumenta la cantidad y recalcula el subtotal
+                        existingItem.Stock += 1;
+                        existingItem.Subtotal = existingItem.Stock * existingItem.PriceUnit;
+                    }
+                    else
+                    {
+                        // Si es un producto nuevo en el carrito
+                        cart.Add(new ItemCart()
+                        {
+                            IdItemCart = itemSelected.IdProduct,
+                            ProductName = itemSelected.ProductName,
+                            PriceUnit = (decimal)itemSelected.Price,
+                            Stock = 1,
+                            Subtotal = (decimal)itemSelected.Price
+                        });
+                    }
+
+                    // Guarda el carrito actualizado
                     TempData["wishList"] = JsonSerializer.Serialize(cart);
                     TempData.Keep("wishList");
                 }
-                else //PRIMER PRODUCTO EN CARRITO
-                {
-                    List<ItemCart> newCart = new List<ItemCart>();
-                    ItemCart newItemCart = new ItemCart()
-                    {
-                        IdItemCart = itemSelected.IdProduct,
-                        ProductName= itemSelected.ProductName,
-                        PriceUnit = (decimal)itemSelected.Price ,
-                        Stock = 1,
-                        Subtotal = (decimal)itemSelected.Price
-                    };
-                    newCart.Add(newItemCart);
-                    TempData["wishList"] = JsonSerializer.Serialize(newCart);
-                    TempData.Keep("wishList");
-                }
             }
+
             return View("SaleForm");
         }
+
+
 
         public List<ProductDTO> DeserializeTempData(string jsonData)
         {
